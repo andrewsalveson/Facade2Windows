@@ -1,0 +1,52 @@
+<script src="Geom.js"></script>
+<svg id="canvas" width="500" height="500">
+  <g id="geometry"></g>
+</svg>
+<script>
+// functions to draw geometry as flat 2D
+function drawLine(line){
+  line = Geom.scaleLine(line,10)
+  var newLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+  newLine.setAttribute('id','line2');
+  newLine.setAttribute('x1',`${line[0][0]}`);
+  newLine.setAttribute('y1',`${line[0][2]}`);
+  newLine.setAttribute('x2',`${line[1][0]}`);
+  newLine.setAttribute('y2',`${line[1][2]}`);
+  newLine.setAttribute("stroke", "black")
+  document.getElementById("geometry").appendChild(newLine);
+}
+function drawRect(rec){
+  Geom.segmentsFromPoly(rec).map(line=>{
+    drawLine(line)
+  })
+}
+
+// this function creates the window geometry
+function f2w(wallWidth,floor2floor,wwr,windowCount,horizontality){
+  let wall = Geom.xzRectangle(wallWidth,floor2floor)
+  let segments = Geom.segmentsFromPoly(wall)
+  return Geom.divideSegment(segments[3],windowCount).map( segment => {
+    let segOrigin = segment[0]
+    let windowZoneWidth = wallWidth / windowCount
+    let windowZone = Geom.xzRectangle(windowZoneWidth,floor2floor,segOrigin)
+    let windowCentroid = Geom.rectangleCentroid(windowZone)
+    let windowZoneArea = Geom.rectangleArea(windowZone)
+    let maxWindowBorderVertical = (1.0 - wwr) * floor2floor
+    let windowHeight = floor2floor - (maxWindowBorderVertical * horizontality)
+    let maxWindowArea = windowZoneArea * wwr
+    let windowWidth = maxWindowArea / windowHeight
+    let windowOrigin = Geom.transposePoint(windowCentroid,[-(windowWidth/2),0,-(windowHeight/2)])
+    return Geom.xzRectangle(windowWidth,windowHeight,windowOrigin)
+  })
+}
+
+let wallWidth   = 50
+let floor2floor = 10
+let numWindows  = 12
+
+// draw the wall
+drawRect(Geom.xzRectangle(wallWidth,floor2floor))
+
+// draw the windows
+f2w(wallWidth,floor2floor,0.5,numWindows,0.5).map(drawRect)
+</script>
