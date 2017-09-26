@@ -4,7 +4,7 @@
 </svg>
 <script>
 // functions to draw geometry as flat 2D
-function drawLine(line){
+function drawLine(line,options={}){
   line = Geom.scaleLine(line,10)
   var newLine = document.createElementNS('http://www.w3.org/2000/svg','line');
   newLine.setAttribute('id','line2');
@@ -12,12 +12,12 @@ function drawLine(line){
   newLine.setAttribute('y1',`${line[0][2]}`);
   newLine.setAttribute('x2',`${line[1][0]}`);
   newLine.setAttribute('y2',`${line[1][2]}`);
-  newLine.setAttribute("stroke", "black")
+  newLine.setAttribute("stroke", options.stroke || "black")
   document.getElementById("geometry").appendChild(newLine);
 }
-function drawRect(rec){
+function drawRect(rec,options={}){
   Geom.segmentsFromPoly(rec).map(line=>{
-    drawLine(line)
+    drawLine(line,options)
   })
 }
 
@@ -45,7 +45,7 @@ let floor2floor = 10
 let numWindows  = 12
 
 // draw the wall
-drawRect(Geom.xzRectangle(wallWidth,floor2floor))
+drawRect(Geom.xzRectangle(wallWidth,floor2floor),{stroke:"red"})
 
 // draw the windows
 f2w(wallWidth,floor2floor,0.5,numWindows,0.5).map(drawRect)
